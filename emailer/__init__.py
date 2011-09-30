@@ -107,6 +107,9 @@ class Account(object):
                 body = email.body.encode(email.charset, 'xmlcharrefreplace')
             mainpart.set_payload(body)
 
+            for hn, hv in email.headers.items():
+                message[hn] = hv
+
             if is7bit(body):
                 mainpart['Content-Transfer-Encoding'] = '7bit'
             else:
@@ -161,15 +164,16 @@ class Account(object):
         smtp.quit()
 
 class Email(object):
-    def __init__(self, rcpt, subject, body, mimetype='text/plain', cc=[], attachments=[], charset='utf-8', force_7bit=False):
+    def __init__(self, rcpt, subject, body, mimetype='text/plain', cc=None, attachments=None, charset='utf-8', force_7bit=False, headers=None):
         self.rcpt = rcpt
-        self.cc = cc
+        self.cc = cc or []
         self.subject = subject
         self.body = body
         self.mimetype = mimetype
-        self.attachments = attachments
+        self.attachments = attachments or []
         self.force_7bit = force_7bit
         self.charset = charset
+        self.headers = headers or {}
 
     def normalize_email_list(self, attr):
         emails = self.__getattribute__(attr)
