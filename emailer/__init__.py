@@ -1,20 +1,23 @@
 __all__ = ['Account', 'Email', 'Attachment']
 
-import datetime, time
-from email.mime.multipart import MIMEBase, MIMEMultipart
+import time
+import datetime
+from smtplib import SMTP, SMTP_SSL
+from mimetypes import guess_type
+
 from email.header import Header
+from email.parser import Parser
 from email.charset import Charset, QP
 from email.encoders import encode_quopri, encode_base64
-from email.parser import Parser
-from mimetypes import guess_type
-from smtplib import SMTP, SMTP_SSL
-from poplib import POP3_SSL, POP3
+from email.mime.multipart import MIMEBase, MIMEMultipart
+
 
 def is7bit(s):
     for c in s:
         if ord(c) > 127:
             return False
-    return True
+    return len(s) < 75
+
 
 class Account(object):
     def __init__(self, email, fromname, server, popserver = None, login=None, password=None, port=25, ssl=False):
@@ -163,6 +166,7 @@ class Account(object):
 
         smtp.quit()
 
+
 class Email(object):
     def __init__(self, rcpt, subject, body, mimetype='text/plain', cc=None, attachments=None, charset='utf-8', force_7bit=False, headers=None):
         self.rcpt = rcpt
@@ -181,8 +185,7 @@ class Email(object):
             emails = [emails]
         for i in range(len(emails)):
             if type(emails[i]) == tuple:
-                if (type(emails[i][0]) not in (str, unicode)) or \
-                    (type(emails[i][1]) not in (str, unicode)):
+                if (type(emails[i][0]) not in (str, unicode)) or (type(emails[i][1]) not in (str, unicode)):
                         return TypeError('invalid "%s"' % attr)
             else:
                 if type(emails[i]) not in (str, unicode):
@@ -214,8 +217,8 @@ class Email(object):
                 h.append('<%s>' % email, r)
             else:
                 h.append(email, r)
-
         return h
+
 
 class Attachment(object):
     def __init__(self, filename, content, id=None, mimetype=None):
@@ -223,4 +226,3 @@ class Attachment(object):
         self.content = content
         self.mimetype = mimetype
         self.id = id
-
