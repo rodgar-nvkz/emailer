@@ -73,8 +73,6 @@ class Account(object):
             r.header_encoding = 0
             r.body_encoding = 0
 
-            email.normalize_email_list('rcpt')
-            email.normalize_email_list('cc')
             mime1, mime2 = email.mimetype.split('/')
             mainpart = MIMEBase(mime1, mime2)
             if not email.force_7bit:
@@ -99,6 +97,8 @@ class Account(object):
             message['To'] = email.get_emails_header('rcpt')
             if len(email.cc):
                 message['CC'] = email.get_emails_header('cc')
+            if len(email.bcc):
+                message['BCC'] = email.get_emails_header('bcc')
 
             subject = email.subject.encode(email.charset, 'xmlcharrefreplace')
             message['Subject'] = Header(subject, r if is7bit(subject) else c)
@@ -160,8 +160,8 @@ class Account(object):
 
                 message.attach(part)
 
-            smtp.sendmail(self.email, [rcpt[1] for rcpt in email.rcpt] +
-                            [cc[1] for cc in email.cc], message.as_string())
+            emails = email.rcpt + email.cc + email.bcc
+            smtp.sendmail(self.email, [email for _, email in emails], message.as_string())
 
         smtp.quit()
 
