@@ -110,6 +110,8 @@ class Account(object):
             mainpart.set_payload(body)
 
             for hn, hv in email.headers.items():
+                if hn == 'X-Mailgun-Campaign-Tag':
+                    hn = 'X-Mailgun-Tag'
                 message[hn] = hv
 
             if is7bit(body):
