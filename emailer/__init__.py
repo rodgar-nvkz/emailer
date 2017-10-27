@@ -169,9 +169,10 @@ class Account(object):
 
 
 class Email(object):
-    def __init__(self, rcpt, subject, body, mimetype='text/plain', cc=None, attachments=None, charset='utf-8', force_7bit=False, headers=None):
+    def __init__(self, rcpt, subject, body, mimetype='text/plain', cc=None, bcc=None, attachments=None, charset='utf-8', force_7bit=False, headers=None):
         self.rcpt = rcpt
         self.cc = cc or []
+        self.bcc = bcc or []
         self.subject = subject
         self.body = body
         self.mimetype = mimetype
